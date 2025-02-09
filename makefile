@@ -1,6 +1,6 @@
 CC = gcc
 
-CLIENTSRC = client.c glad.c
+CLIENTSRC = client.c glad.c graphics/graphics.c graphics/graphics.h
 SERVERSRC = server.c
 
 BUILD_DIR = build

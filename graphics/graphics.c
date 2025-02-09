@@ -112,6 +112,28 @@ int doGraphicsSetup() {
     glEnableVertexAttribArray(0);
 
     // YOU ARE NOT DONE !!!! YOU ARE. NOT DONE. FINISH SOON. GETTING STARTED TRIANGLE. PROBABLY CLOSE TO DONE.
+    
+    // make da vertex array object :3
+
+    unsigned int VAO;
+    glGenVertexArrays(1, &VAO);
+
+    // initialization code done once unless the object frequently changes...
+
+    glBindVertexArray(VAO);
+
+    glBindBuffer(GL_ARRAY_BUFFER, VBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3*sizeof(float), (void*)0);
+    glEnableVertexAttribArray(0);
+
+    // da render loop,,,
+    glUseProgram(shaderProgram);
+    glBindVertexArray(VAO);
+    glDrawArrays(GL_TRIANGLES, 0, 3);
+
+    // WHY DID YOU NOT IMPLEMENT A WINDOW YET ???????????? CMON DUDE :/
 
     return 0;
 }

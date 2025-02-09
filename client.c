@@ -5,5 +5,6 @@
 
 int main() {
     printf("Hello from client!");
-    return doGraphicsSetup();
+    int moment = doGraphicsSetup();
+    return moment;
 }
