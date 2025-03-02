@@ -3,10 +3,60 @@
 #include <GLFW/glfw3.h>
 #include <stdio.h>
 
+void framebuffer_size_callback(GLFWwindow* window, int width, int height);
+void processInput(GLFWwindow * window);
+
+const unsigned int SCREENWIDTH = 800;
+const unsigned int SCREENHEIGHT = 600;
+
+const char* vertexShaderSource = 
+        "#version 330 core \n"
+        "layout (location =0) in vec3 aPos;\n"
+        "void main() {\n"
+        "   gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);\n"
+        "}\0";
+
+const char* fragmentShaderSource = 
+        "#version 330 core\n"
+        "out vec4 FragColor;\n"
+        "void main() {\n"
+        "   FragColor = vec4(1.0f, 0.5f, 0.2f, 1.0f);\n"
+        "}\0";
+
 int doGraphicsSetup() {
     // replacement for main function, visible from header file for implementation.
     // if you get lost, and it's okay if you do! I love you regardless, whatever you're messing with is probably
     // a buffer of some sort misbehaving. I wish I could guide you, but I'm in the past, and you're not. :P
+    
+    // let us initiate the window.
+    glfwInit();
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+
+#ifdef __APPLE__
+    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+#endif
+
+    // window creation
+
+    GLFWwindow* window = glfwCreateWindow(SCREENWIDTH, SCREENHEIGHT, "Test Window", NULL, NULL);
+
+    if (window == NULL) {
+        printf("Failed to create GLFW window.\n");
+        glfwTerminate();
+        return -1;
+    }
+
+    // if we're here, we good! yeeey
+    
+    glfwMakeContextCurrent(window);
+    glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
+
+    if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
+        printf("Failed to initialize GLAD.\n");
+        return -1;
+    }
     
     // test triangle
     float vertices[] = {
@@ -26,11 +76,7 @@ int doGraphicsSetup() {
 
     // vertex shader. is programmable. uses GLSL, no idea if that'll be foreshadowing of a painful future.
 
-    const char *vertexShaderSource = 
-        "#version 330 core \n"
-        "void main() {\n"
-        "   gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);\n"
-        "}\0";
+    // SEE IMPLEMENTATION ABOVE THIS FUNCTION.
 
     // great. have the shader src, now we need an object and to use it.
 
@@ -56,13 +102,8 @@ int doGraphicsSetup() {
     }
 
     // begin fragment shader ! not really sure what this part does.
-    
-    const char *fragmentShaderSource = 
-        "#version 330 core\n"
-        "out vec4 FragColor;\n"
-        "void main() {\n"
-        "   FragColor = vec4(1.0f, 0.5f, 0.2f, 1.0f)\n"
-        "}\0";
+
+    // SEE IMPLEMENTATION ABOVE THIS FUNCTION
 
     unsigned int fragmentShader;
     fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
@@ -111,8 +152,6 @@ int doGraphicsSetup() {
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
 
-    // YOU ARE NOT DONE !!!! YOU ARE. NOT DONE. FINISH SOON. GETTING STARTED TRIANGLE. PROBABLY CLOSE TO DONE.
-    
     // make da vertex array object :3
 
     unsigned int VAO;
@@ -128,12 +167,48 @@ int doGraphicsSetup() {
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3*sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
 
-    // da render loop,,,
-    glUseProgram(shaderProgram);
-    glBindVertexArray(VAO);
-    glDrawArrays(GL_TRIANGLES, 0, 3);
+    // DA RENDER LOOP
 
-    // WHY DID YOU NOT IMPLEMENT A WINDOW YET ???????????? CMON DUDE :/
+    while (!glfwWindowShouldClose(window)) {
 
+        // do input
+        processInput(window);
+
+        // render
+        glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+        glClear(GL_COLOR_BUFFER_BIT);
+
+        // draw triangle number 1
+        glUseProgram(shaderProgram);
+        glBindVertexArray(VAO);
+        glDrawArrays(GL_TRIANGLES, 0, 3);
+
+        // swap buffers and poll IO events
+        glfwSwapBuffers(window);
+        glfwPollEvents();
+    }
+
+    // cleanup!
+    glDeleteVertexArrays(1, &VAO);
+    glDeleteBuffers(1, &VBO);
+    glDeleteProgram(shaderProgram);
+
+    // terminate.
+    glfwTerminate();
     return 0;
+}
+
+// PROCESS GLFW INPUT
+
+void processInput(GLFWwindow * window) {
+    if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
+        glfwSetWindowShouldClose(window, GLFW_TRUE);
+    }
+}
+
+// WINDOW SIZE CHANGE FUNCTION
+
+void framebuffer_size_callback(GLFWwindow * window, int width, int height) {
+    // make sure viewport matches new window dimensions.
+    glViewport(0, 0, width, height);
 }
